@@ -1,10 +1,55 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ClickOutside from '../ClickOutside';
 import UserOne from '../../images/user/user-01.png';
+import { useNavigate } from 'react-router-dom';
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [username, setUsername] = useState('');
+
+  // useEffect(() => {
+  //   // Retrieve the username from localStorage or a state management solution
+  //   const storedUsername = localStorage.getItem('username');
+  //   if (storedUsername) {
+  //     setUsername(storedUsername);
+  //   } else {
+  //     setUsername('Guest'); // Default username if none found
+  //   }
+  // }, []);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/accounts/me/', {
+          method: 'GET',
+          credentials: 'include', // Ensures cookies are sent with the request
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch user data');
+        }
+
+        const data = await response.json();
+        setUsername(data.username); // Set username from the response
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        setUsername('Guest'); // Fallback in case of error
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Remove the authentication token from localStorage
+    localStorage.removeItem('authToken');
+    
+    // Redirect the user to the sign-in page
+    navigate('/auth/signin');
+  };
 
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative">
@@ -15,7 +60,7 @@ const DropdownUser = () => {
       >
         <span className="hidden text-right lg:block">
           <span className="block text-sm font-medium text-black dark:text-white">
-            Thomas Anree
+          {username}
           </span>
           <span className="block text-xs">UX Designer</span>
         </span>
@@ -119,7 +164,9 @@ const DropdownUser = () => {
               </Link>
             </li>
           </ul>
-          <button className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
+          <button 
+          onClick={handleLogout}
+          className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
             <svg
               className="fill-current"
               width="22"

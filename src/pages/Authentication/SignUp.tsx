@@ -1,13 +1,65 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+// import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import LogoDark from '../../images/logo/logo-dark.svg';
 import Logo from '../../images/logo/logo.svg';
 
 const SignUp: React.FC = () => {
+
+  const [inputValue, setInputValue] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirm_password: "",
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setInputValue((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const data = {
+      username: inputValue.username,
+      password: inputValue.password,
+      confirm_password: inputValue.confirm_password,
+      email: inputValue.email,
+    };
+  
+    try {
+      const response = await fetch('http://127.0.0.1:8000/accounts/register/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      
+      const responseData = await response.json();
+      console.log(responseData); 
+
+      if (!response.ok) {
+        throw new Error('Registration failed');
+      }
+      navigate('/dashboard');
+      // Handle successful response (e.g., navigate to login or dashboard)
+    } catch (error) {
+      console.error('Error during sign-up:', error);
+    }
+  };
+
   return (
     <>
-      <Breadcrumb pageName="Sign Up" />
+      {/* <Breadcrumb pageName="Sign Up" /> */}
 
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex flex-wrap items-center">
@@ -154,15 +206,18 @@ const SignUp: React.FC = () => {
                 Sign Up to TailAdmin
               </h2>
 
-              <form>
+              <form onSubmit={handleSubmit} method='POST'>
                 <div className="mb-4">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
-                    Name
+                    Username
                   </label>
                   <div className="relative">
                     <input
                       type="text"
+                      name="username"
                       placeholder="Enter your full name"
+                      value={inputValue.username}
+                      onChange={handleInputChange}
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     />
 
@@ -197,7 +252,10 @@ const SignUp: React.FC = () => {
                   <div className="relative">
                     <input
                       type="email"
+                      name="email"
                       placeholder="Enter your email"
+                      value={inputValue.email}
+                      onChange={handleInputChange}
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     />
 
@@ -228,7 +286,10 @@ const SignUp: React.FC = () => {
                   <div className="relative">
                     <input
                       type="password"
+                      name="password"
                       placeholder="Enter your password"
+                      value={inputValue.password}
+                      onChange={handleInputChange}
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     />
 
@@ -263,7 +324,10 @@ const SignUp: React.FC = () => {
                   <div className="relative">
                     <input
                       type="password"
+                      name="confirm_password"
                       placeholder="Re-enter your password"
+                      value={inputValue.confirm_password}
+                      onChange={handleInputChange}
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     />
 
