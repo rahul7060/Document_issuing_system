@@ -21,7 +21,7 @@ const DropdownUser = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/accounts/me/', {
+        const response = await fetch('http://127.0.0.1:8000/accounts/user/', {
           method: 'GET',
           credentials: 'include', // Ensures cookies are sent with the request
         });
@@ -31,15 +31,21 @@ const DropdownUser = () => {
         }
 
         const data = await response.json();
-        setUsername(data.username); // Set username from the response
+        setUsername(data.username);
+        // console.log(data.username, "usernbamee");
       } catch (error) {
         console.error('Error fetching user data:', error);
         setUsername('Guest'); // Fallback in case of error
       }
     };
-
+    console.log(fetchUserData(), "fetching.....");
+    
+    
     fetchUserData();
   }, []);
+
+  console.log(username, "username...");
+  
 
   const navigate = useNavigate();
 
